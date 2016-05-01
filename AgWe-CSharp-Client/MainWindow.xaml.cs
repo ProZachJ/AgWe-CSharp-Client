@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Net;
 
 namespace AgWe_CSharp_Client
 {
@@ -23,6 +24,28 @@ namespace AgWe_CSharp_Client
         public MainWindow()
         {
             InitializeComponent();
+        }
+
+        private void btnVerify_Click(object sender, RoutedEventArgs e)
+        {
+            IPAddress address = ValidateIP(txtIPAddress.Text);
+
+            if (address == null)
+            {
+                txtIPAddress.Text = "ERROR";
+                return;
+            }
+
+
+        }
+
+        private IPAddress ValidateIP(string ip)
+        {
+            IPAddress address;
+
+            IPAddress.TryParse(ip, out address);
+
+            return address;
         }
     }
 }
