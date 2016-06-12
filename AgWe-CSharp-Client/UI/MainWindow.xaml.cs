@@ -13,6 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Net;
+using Quobject.SocketIoClientDotNet.Client;
 
 namespace AgWe_CSharp_Client
 {
@@ -26,6 +27,8 @@ namespace AgWe_CSharp_Client
             InitializeComponent();
         }
 
+        private Socket socket;
+        
         private void btnVerify_Click(object sender, RoutedEventArgs e)
         {
             IPAddress address = ValidateIP(txtIPAddress.Text);
@@ -36,7 +39,15 @@ namespace AgWe_CSharp_Client
                 return;
             }
 
-
+            socket = IO.Socket(CreateUri(address));
+            socket.On(Socket.EVENT_CONNECT, () =>
+            {
+                lblOut.Dispatcher.Invoke(
+                    new UpdateContentCallback(this.UpdateContent),
+                    new object[] {"Connected"}
+                );
+            });
+     
         }
 
         private IPAddress ValidateIP(string ip)
@@ -44,8 +55,20 @@ namespace AgWe_CSharp_Client
             IPAddress address;
 
             IPAddress.TryParse(ip, out address);
-
             return address;
         }
+
+        private string CreateUri(IPAddress address)
+        {
+            var uri = string.Format("http://{0}", address.ToString());
+            return uri;
+        }
+
+        private void UpdateContent (string message)
+        {
+            lblOut.Content = message;
+        }
+
+        public delegate void UpdateContentCallback(string message);
     }
 }
