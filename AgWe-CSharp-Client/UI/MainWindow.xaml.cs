@@ -13,22 +13,22 @@ namespace AgWe_CSharp_Client
     /// </summary>
     public partial class MainWindow : Window
     {
+        private ManualResetEvent ManualResetEvent = null;
+        private Queue<object> events;
+        private Socket socket;
+
         public MainWindow()
         {
             InitializeComponent();
         }
-
-        private ManualResetEvent ManualResetEvent = null;
-        private Queue<object> events;
-        private Socket socket;
         
-        private void btnVerify_Click(object sender, RoutedEventArgs e)
+        private void btnConnect_Click(object sender, RoutedEventArgs e)
         {
             IPAddress address = ValidateIP(txtIPAddress.Text);
 
             if (address == null)
             {
-                txtIPAddress.Text = "ERROR";
+                txtIPAddress.Text = "Invalid IP";
                 return;
             }
 
@@ -43,38 +43,46 @@ namespace AgWe_CSharp_Client
                     new UpdateContentCallback(this.UpdateContent),
                     new object[] {"Connected", lblStatusOut}
                 );
-            });
-            
-            socket.On("temp", (data) =>
-            {
-                events.Enqueue(data);
-                ManualResetEvent.Set();
-                ReceiveData("temp", lblTempOut);
+                RegisterListeners(socket);
             });
 
-            
-
-            socket.On("humid", (data) =>
+            socket.On(Socket.EVENT_CONNECT_ERROR, () =>
             {
-                events.Enqueue(data);
-                ManualResetEvent.Set();
-                ReceiveData("humid", lblHumidityOut);
-            });
-
-            socket.On("light", (data) =>
-            {
-                events.Enqueue(data);
-                ManualResetEvent.Set();
-                ReceiveData("light", lblLightOut);
+                lblStatusOut.Dispatcher.Invoke(
+                    new UpdateContentCallback(this.UpdateContent),
+                    new object[] {"Connection Error", lblStatusOut}
+                );
             });
 
         }
 
-        private void ReceiveData(string reading, Label label)
+        private void RegisterListeners (Socket socket)
         {
+            socket.On("temp", (data) =>
+            {
+                ReceiveData("temp", lblTempOut, data);
+            });
+
+            socket.On("humid", (data) =>
+            {
+                ReceiveData("humid", lblHumidityOut, data);
+            });
+
+            socket.On("light", (data) =>
+            {
+                ReceiveData("light", lblLightOut, data);
+            });
+        }
+
+        private void ReceiveData(string reading, Label label, object data)
+        {
+            events.Enqueue(data);
+            ManualResetEvent.Set();
             ManualResetEvent.WaitOne();
+
             var obj = (JObject)events.Dequeue();
             var str = (string)obj[reading];
+
             label.Dispatcher.Invoke(
                 new UpdateContentCallback(this.UpdateContent),
                 new object[] { str, label }
