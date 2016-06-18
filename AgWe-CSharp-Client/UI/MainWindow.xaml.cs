@@ -1,19 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Net;
 using Quobject.SocketIoClientDotNet.Client;
+using System.Threading;
+using Newtonsoft.Json.Linq;
 
 namespace AgWe_CSharp_Client
 {
@@ -27,6 +18,8 @@ namespace AgWe_CSharp_Client
             InitializeComponent();
         }
 
+        private ManualResetEvent ManualResetEvent = null;
+        private Queue<object> events;
         private Socket socket;
         
         private void btnVerify_Click(object sender, RoutedEventArgs e)
@@ -39,15 +32,53 @@ namespace AgWe_CSharp_Client
                 return;
             }
 
+            ManualResetEvent = new ManualResetEvent(false);
+            events = new Queue<object>();
+
             socket = IO.Socket(CreateUri(address));
+
             socket.On(Socket.EVENT_CONNECT, () =>
             {
-                lblOut.Dispatcher.Invoke(
+                lblStatusOut.Dispatcher.Invoke(
                     new UpdateContentCallback(this.UpdateContent),
-                    new object[] {"Connected"}
+                    new object[] {"Connected", lblStatusOut}
                 );
             });
-     
+            
+            socket.On("temp", (data) =>
+            {
+                events.Enqueue(data);
+                ManualResetEvent.Set();
+                ReceiveData("temp", lblTempOut);
+            });
+
+            
+
+            socket.On("humid", (data) =>
+            {
+                events.Enqueue(data);
+                ManualResetEvent.Set();
+                ReceiveData("humid", lblHumidityOut);
+            });
+
+            socket.On("light", (data) =>
+            {
+                events.Enqueue(data);
+                ManualResetEvent.Set();
+                ReceiveData("light", lblLightOut);
+            });
+
+        }
+
+        private void ReceiveData(string reading, Label label)
+        {
+            ManualResetEvent.WaitOne();
+            var obj = (JObject)events.Dequeue();
+            var str = (string)obj[reading];
+            label.Dispatcher.Invoke(
+                new UpdateContentCallback(this.UpdateContent),
+                new object[] { str, label }
+            );
         }
 
         private IPAddress ValidateIP(string ip)
@@ -64,11 +95,11 @@ namespace AgWe_CSharp_Client
             return uri;
         }
 
-        private void UpdateContent (string message)
+        private void UpdateContent(string message, Label label)
         {
-            lblOut.Content = message;
+            label.Content = message;
         }
 
-        public delegate void UpdateContentCallback(string message);
+        public delegate void UpdateContentCallback(string message, Label label);
     }
 }
