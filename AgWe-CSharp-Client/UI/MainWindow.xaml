@@ -3,21 +3,88 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:local="clr-namespace:AgWe_CSharp_Client"
         mc:Ignorable="d"
-        Title="AgWe" Height="350" Width="525">
-    <Grid>
-        <Label x:Name="lblIPAddress" Content="IP Address:" HorizontalAlignment="Left" VerticalAlignment="Top" RenderTransformOrigin="1.098,2.289" Margin="10,41,0,0"/>
-        <TextBox x:Name="txtIPAddress" HorizontalAlignment="Left" Height="23" Margin="92,44,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
-        <Button x:Name="btnConnect" Content="Connect" HorizontalAlignment="Left" Margin="237,44,0,0" VerticalAlignment="Top" Width="75" Click="btnConnect_Click"/>
-        <Label x:Name="lblStatusOut" Content="" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="92,81,0,0" Height="26" Width="120" FontFamily="MV Boli"/>
-        <Label x:Name="lblStatus" Content="Status:" HorizontalAlignment="Left" VerticalAlignment="Top" RenderTransformOrigin="1.098,2.289" Margin="10,81,0,0"/>
-        <Label x:Name="lblTemp" Content="Temp:" HorizontalAlignment="Left" VerticalAlignment="Top" RenderTransformOrigin="1.098,2.289" Margin="51,121,0,0"/>
-        <Label x:Name="lblHumidity" Content="Humidity:" HorizontalAlignment="Left" VerticalAlignment="Top" RenderTransformOrigin="1.098,2.289" Margin="207,121,0,0"/>
-        <Label x:Name="lblLight" Content="Light:" HorizontalAlignment="Left" VerticalAlignment="Top" RenderTransformOrigin="1.098,2.289" Margin="406,121,0,0"/>
-        <Label x:Name="lblTempOut" Content="" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="10,152,384,0" Height="26" Width="123" FontFamily="MV Boli"/>
-        <Label x:Name="lblHumidityOut" Content="" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="177,152,217,0" Height="26" Width="123" FontFamily="MV Boli"/>
-        <Label x:Name="lblLightOut" Content="" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="365,152,29,0" Height="26" Width="123" FontFamily="MV Boli"/>
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        Background="{DynamicResource MaterialDesignPaper}"
+        TextElement.FontWeight="Medium"
+        TextElement.FontSize="14"
+        FontFamily="pack://application:,,,/MaterialDesignThemes.Wpf;component/Resources/Roboto/#Roboto"
+        Title="AgWe" Height="850" Width="550">
+    <materialDesign:DialogHost Identifier="RootDialog">
+        <DockPanel>
+            <materialDesign:ColorZone Padding="16" materialDesign:ShadowAssist.ShadowDepth="Depth2"
+                                          Mode="PrimaryMid" DockPanel.Dock="Top">
+                <DockPanel>
+                    <ToggleButton Style="{StaticResource MaterialDesignHamburgerToggleButton}" IsChecked="False"
+                                      x:Name="MenuToggleButton"/>
+                    <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="22">AgWe Grow Controller</TextBlock>
+                </DockPanel>
+            </materialDesign:ColorZone>
+            <Grid Margin="5,5,5,5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
 
-    </Grid>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="40" />
+                    <RowDefinition Height="40" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Label Grid.Row="1" Grid.Column="0" x:Name="lblIPAddress" Content="IP Address:" VerticalAlignment="Center" />
+                <TextBox Grid.Row="1" Grid.Column="1" x:Name="txtIPAddress" Margin="8 0 135 0" TextWrapping="Wrap" VerticalAlignment="Center"/>
+                <materialDesign:PackIcon Grid.Row="1" Grid.Column="2" Kind="LanConnect" Height="34" HorizontalAlignment="Right" Margin="5 0 120 0"/>
+                <Button Style="{StaticResource MaterialDesignRaisedButton}" 
+                        Grid.Row="1" Grid.Column="2" Width="110" Margin="30,0,5,0" HorizontalAlignment="Right"
+                        x:Name="btnConnect" 
+                        Content="Connect"
+                        ToolTip="Enter an IP address to connect to an AgWe device"
+                        Click="btnConnect_Click" />
+                <Label Grid.Row="2" Grid.Column="0" x:Name="lblStatus" Content="Status:" />
+                <Label Grid.Row="2" Grid.Column="1" x:Name="lblStatusOut" Content="" />
+                <GroupBox Grid.Row="3" Grid.ColumnSpan="2" Header="Card Group Box" Style="{DynamicResource MaterialDesignCardGroupBox}" Height="200" Margin="5 5 5 5"
+                          materialDesign:ShadowAssist.ShadowDepth="Depth5">
+                    <GroupBox.HeaderTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="ThermometerLines" Height="32" Width="32" VerticalAlignment="Center" />
+                                <TextBlock Margin="8,0,0,0" VerticalAlignment="Center" Style="{StaticResource MaterialDesignSubheadingTextBlock}" Text="Temperature"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </GroupBox.HeaderTemplate>
+                    <Label x:Name="lblTempOut" Content="" />
+                </GroupBox>
+                <GroupBox Grid.Row="4" Grid.ColumnSpan="2" Header="Card Group Box" Style="{DynamicResource MaterialDesignCardGroupBox}" Height="200" Margin="5 5 5 5"
+                          materialDesign:ShadowAssist.ShadowDepth="Depth5">
+                    <GroupBox.HeaderTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="WaterPercent" Height="32" Width="32" VerticalAlignment="Center" />
+                                <TextBlock Margin="8,0,0,0" VerticalAlignment="Center" Style="{StaticResource MaterialDesignSubheadingTextBlock}" Text="Relative Humidity"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </GroupBox.HeaderTemplate>
+                    <Label x:Name="lblHumidityOut" Content="" />
+                </GroupBox>
+                <GroupBox Grid.Row="5" Grid.ColumnSpan="2" Header="Card Group Box" Style="{DynamicResource MaterialDesignCardGroupBox}" Height="200" Margin="5 5 5 5"
+                          materialDesign:ShadowAssist.ShadowDepth="Depth5">
+                    <GroupBox.HeaderTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="WeatherSunny" Height="32" Width="32" VerticalAlignment="Center" />
+                                <TextBlock Margin="8,0,0,0" VerticalAlignment="Center" Style="{StaticResource MaterialDesignSubheadingTextBlock}" Text="Light Level"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </GroupBox.HeaderTemplate>
+                    <Label x:Name="lblLightOut" Content="" VerticalAlignment="Top" />
+                </GroupBox>
+            </Grid>
+        </DockPanel>
+    </materialDesign:DialogHost>
 </Window>
