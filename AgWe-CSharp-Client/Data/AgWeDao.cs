@@ -6,10 +6,25 @@ using System.Threading.Tasks;
 using System.Data.SQLite;
 using System.IO;
 
+using AgWe_CSharp_Client.Data.Readings;
+
 namespace AgWe_CSharp_Client.Data
 {
-    class TempDao
+    
+    class AgWeDao
     {
+        public void InitializeDB()
+        {
+            if (File.Exists("AgweDB.db3"))
+            {
+                Console.WriteLine("DB Exists");
+            }
+            else
+            {
+                this.CreateSQLiteDB();
+                Console.WriteLine("DB Created");
+            }
+        }
         public bool CreateSQLiteDB(bool fresh = false)
         {
             if (fresh) DropTable();
@@ -30,7 +45,6 @@ namespace AgWe_CSharp_Client.Data
 
                     com.CommandText = createTableQuery;
                     com.ExecuteNonQuery();
-
                     con.Close();
                 }
             }
@@ -55,7 +69,7 @@ namespace AgWe_CSharp_Client.Data
             }
         }
 
-        public bool Insert(string device, string key, string value)
+        public bool SaveReading(string device, string key, string value)
         {
             DateTime dt = DateTime.Now;
             bool inserted = false;
@@ -84,6 +98,36 @@ namespace AgWe_CSharp_Client.Data
             return inserted;
         }
 
+        public List<ReadingModel> getLastDay()
+        {
+            using (SQLiteConnection con = new SQLiteConnection("data source=AgweDB.db3"))
+            {
+                string sql = "select * from [AgweData] where Timestamp <= $Timestamp and Timestamp >= $TimeStampMin24";
+                using (SQLiteCommand command = new SQLiteCommand(con))
+                {
+                    var now = DateTime.Now;
+                    var yesterday = now.AddDays(-1);
+                    con.Open();
+
+                    command.CommandText = sql;
+                    command.Parameters.AddWithValue("$Timestamp", now);
+                    command.Parameters.AddWithValue("$TimeStampMin24", yesterday);                    
+
+                    SQLiteDataReader reader = command.ExecuteReader();
+                    List<ReadingModel> readings = new List<ReadingModel>();
+                    if (reader.HasRows)
+                    {
+                        
+                        while (reader.Read())
+                            //Console.WriteLine("Device: " + reader["device"] + "\tTimestamp: " + reader["Timestamp"] + "\tKey: " + reader["Key"] + "\tValue: " + reader["Value"]);
+                            readings.Add(new ReadingModel { DateTime = System.Convert.ToDateTime(reader["Timestamp"]), Value = Convert.ToDouble(reader["Value"]), kind = Convert.ToString(reader["Key"])});
+                    }
+                    con.Close();
+                    return readings;
+                }
+            }
+        }
+
         public void Read()
         {
             using (SQLiteConnection con = new SQLiteConnection("data source=AgweDB.db3"))
@@ -97,7 +141,7 @@ namespace AgWe_CSharp_Client.Data
 
                     SQLiteDataReader reader = command.ExecuteReader();
                     while (reader.Read())
-                        Console.WriteLine("Device: " + reader["device"] + "\tTimestamp: " + reader["Timestamp"] + "\tKey: " + reader["Key"] + "\tKey: " + reader["Value"]);
+                        Console.WriteLine("Device: " + reader["device"] + "\tTimestamp: " + reader["Timestamp"] + "\tKey: " + reader["Key"] + "\tValue: " + reader["Value"]);
 
                     con.Close();
                 }

@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
         xmlns:local="clr-namespace:AgWe_CSharp_Client"
         mc:Ignorable="d"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
@@ -50,7 +51,9 @@
                 <Label Grid.Row="2" Grid.Column="1" x:Name="lblStatusOut" Content="" />
                 <GroupBox Grid.Row="3" Grid.ColumnSpan="2" Header="Card Group Box" Style="{DynamicResource MaterialDesignCardGroupBox}" Height="200" Margin="5 5 5 5"
                           materialDesign:ShadowAssist.ShadowDepth="Depth5">
+
                     <GroupBox.HeaderTemplate>
+
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal">
                                 <materialDesign:PackIcon Kind="ThermometerLines" Height="32" Width="32" VerticalAlignment="Center" />
@@ -58,8 +61,16 @@
                             </StackPanel>
                         </DataTemplate>
                     </GroupBox.HeaderTemplate>
-                    <Label x:Name="lblTempOut" Content="" />
+                    <lvc:CartesianChart  Series="{Binding TempCollection}">
+                        <lvc:CartesianChart.AxisX>
+                            <lvc:Axis LabelFormatter="{Binding Formatter}"></lvc:Axis>
+                        </lvc:CartesianChart.AxisX>
+                        <lvc:CartesianChart.AxisY>
+                            <lvc:Axis Position="RightTop"></lvc:Axis>
+                        </lvc:CartesianChart.AxisY>
+                    </lvc:CartesianChart>
                 </GroupBox>
+
                 <GroupBox Grid.Row="4" Grid.ColumnSpan="2" Header="Card Group Box" Style="{DynamicResource MaterialDesignCardGroupBox}" Height="200" Margin="5 5 5 5"
                           materialDesign:ShadowAssist.ShadowDepth="Depth5">
                     <GroupBox.HeaderTemplate>
@@ -70,7 +81,14 @@
                             </StackPanel>
                         </DataTemplate>
                     </GroupBox.HeaderTemplate>
-                    <Label x:Name="lblHumidityOut" Content="" />
+                    <lvc:CartesianChart  Series="{Binding HumidCollection}">
+                        <lvc:CartesianChart.AxisX>
+                            <lvc:Axis LabelFormatter="{Binding Formatter}"></lvc:Axis>
+                        </lvc:CartesianChart.AxisX>
+                        <lvc:CartesianChart.AxisY>
+                            <lvc:Axis Position="RightTop"></lvc:Axis>
+                        </lvc:CartesianChart.AxisY>
+                    </lvc:CartesianChart>
                 </GroupBox>
                 <GroupBox Grid.Row="5" Grid.ColumnSpan="2" Header="Card Group Box" Style="{DynamicResource MaterialDesignCardGroupBox}" Height="200" Margin="5 5 5 5"
                           materialDesign:ShadowAssist.ShadowDepth="Depth5">
@@ -82,7 +100,14 @@
                             </StackPanel>
                         </DataTemplate>
                     </GroupBox.HeaderTemplate>
-                    <Label x:Name="lblLightOut" Content="" VerticalAlignment="Top" />
+                    <lvc:CartesianChart  Series="{Binding LightCollection}">
+                        <lvc:CartesianChart.AxisX>
+                            <lvc:Axis LabelFormatter="{Binding Formatter}"></lvc:Axis>
+                        </lvc:CartesianChart.AxisX>
+                        <lvc:CartesianChart.AxisY>
+                            <lvc:Axis Position="RightTop"></lvc:Axis>
+                        </lvc:CartesianChart.AxisY>
+                    </lvc:CartesianChart>
                 </GroupBox>
             </Grid>
         </DockPanel>
